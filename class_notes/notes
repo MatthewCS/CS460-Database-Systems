@@ -45,7 +45,7 @@ Some data for our department:
 01-29:
 Relational algebra:
 
-    Relational algebra is a procedural language consistion of a set of operations that take one or two relations as input at produce a new relation as their result.
+    Relational algebra is a procedural language constituted by a set of operations that take one or two relations as input at produce a new relation as their result.
 
     Select:             σ
     Project:            ∏
