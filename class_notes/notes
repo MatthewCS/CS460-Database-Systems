@@ -1,0 +1,168 @@
+01-24:
+Building our University Database:
+
+    (uni_db.sql)
+    ------------------------------------------------------------------------------------------------
+    create table department ( name varchar(40), building varchar(10), budget integer,
+    primary key (name));
+
+    create table instructor ( ID integer, name varchar(20), dept varchar(40), salary integer,
+    primary key (ID),
+    foreign key (dept) references department(name));
+
+    create table course (course_id varchar(7), title varchar(25), dept varchar(40), credits integer,
+    primary key (course_id),
+    foreign key (dept) references department (name));
+
+    create table prereq (course_id varchar(7), prereq_id varchar(7),
+    foreign key (course_id) references course(course_id),
+    foreign key (prereq_id) references course(course_id));
+
+Some data for our department:
+    department(name, building, budget):
+    ------------------------------------------------------------------------------------------------
+    (“Electrical and Computer Engineering”, “CAMP”, 20000),
+    (“Physics”, “Science Center”, 10000),
+    (“Comp. Eng.”, “Science Center”, 10101),
+    (“Comp. Sci.”, “Science Center”, 32000),
+    (“Military Science”, “Snell”, 50000),
+    (“History”, “Snell”, 10050),
+    (“Politics”, “Snell”, 10030),
+    (“Digital Arts”, “Snell”, 10700),
+    (“Graphics”, “Snell”, 10900),
+    (“U.S. History”, “Snell Hall”, 30000),
+    (“Chemistry”, “Science Center”, 56700),
+    (“Math”, “Science Center”, 20000),
+    (“Political Science”, “Science Center”, 25000),
+    (“Statistics”, “Science Center”, 20600),
+    (“Robotics”, “Science Center”, 19500),
+    (“Psychology”, “Snell Hall”, 30700),
+    (“Music”, “Snell Hall”, 21500),
+    (“Economics”, “Snell Hall”, 40100),
+    (“Software Eng”, “CAMP”, 56000),
+    (“Communications”, “Snell Hall”, 50000);
+
+01-29:
+Relational algebra:
+
+    Relational algebra is a procedural language consistion of a set of operations that take one or two relations as input at produce a new relation as their result.
+
+    Select:             σ
+    Project:            ∏
+    Union:              ∪
+    Set intersection:   ∩
+    Set differrence:    -
+    Cartesian product:  x
+    Rename:             ρ
+
+    Here is a problem:
+        "Select every instructor where the instructor is in the 'Physics' department"
+        Query:
+            σ dept_name = "Physics" (instructor)
+        Result:
+            ID     name        dept_name    salary
+            --------------------------------------
+            22222  Einstein    Physics      95000
+            33456  Gold        Physics      87000
+
+    We allow comparisons using
+        =, ≠, >, ≥, <, ≤
+    in the selection predicate.
+
+    We can combine several predicates into a larger predicate by using the connectives:
+        ∧ (and), ∨ (or), ¬ (not)
+
+    Project operation example:
+        Query:
+            ∏ ID, name, salary (instructor)
+        Result:
+            ID     name        salary
+            -------------------------
+            10101  Srinivasan  65000
+            12121  Wu          90000
+            15151  Mozart      40000
+            22222  Einstein    95000
+            ......... etc. .........
+            76766  Crick       72000
+            83821  Brandt      92000
+            98345  Kim         80000
+
+    Consider the following query:
+        ∏ name (σ dept_name = "Physics" (instructor))
+        "Project all names from the instructor table where the instructor works in the 'Physics' department."
+        Result:
+            name        
+            ------------
+            Einstein
+            Gold
+
+01-30:
+More relational algebra:
+
+    The join operation allows us to combine a select operation and a Cartesian-Product operation into a single statement.
+        Again, consider this query:
+            ∏ name (σ dept_name = "Physics" (instructor))
+
+    The union operation allows us to combine two relations.
+        Notation: R ∪ S
+        For "R ∪ S" to be valid:
+            R, S must have the same arity (same number of attributes)
+            The attribue domains must be compatible.
+                Example: the second column of R deals with the same type of values as the second column of S.
+
+    And operation:
+        Self-explanitory. Select data if one condition AND another condition are true.
+        Example:
+            ∏ course_id (σ semester="Fall" ∧ year=2017 (section)) ∪
+            ∏ course_id (σ semester="Spring" ∧ year=2018 (section)) 
+                This query will select every class offered in the 2017-2018 academic year.
+
+    The Set-Intersection operation allows us to find tuples that are in both of the input relations.
+        Notation: R ∩ S
+            Assume that R and S have the same arity, and each attribute is compatible
+        Example:
+            ∏ course_id (σ semester="Fall" ∧ year=2017 (section)) ∩
+            ∏ course_id (σ semester="Spring" ∧ year=2018 (section)) 
+                This query will select every class offered in both the Spring AND the Fall of the 2017-2018 academic year.
+
+    The Set-Difference operation allows us to find tuples that are in one relation, but not in another.
+        Notation: R - S
+            Set-differences must be taken between compatible relations.
+        Example:
+            ∏ course_id (σ semester="Fall" ∧ year=2017 (section)) -
+            ∏ course_id (σ semester="Spring" ∧ year=2018 (section)) 
+                This query will select every class offered in the Fall AND NOT in the Spring.
+
+    The assignment operation is denoted by an arrow ← and sets a temporary value.
+        Example:
+            Physics ← ∏ name (σ dept_name = "Physics" (instructor))
+            Music ← ∏ name (σ dept_name = "Music" (instructor))
+            Physics ∪ Music
+        This will represent every insructor who teaches in both the music department and in the physics department. A true Renaissance Man!
+
+    The rename operation is denoted by ρ and will give a name to a relational algeba expression.
+        Example:
+            ρx (E)
+        That expression will return the result of E under the name x.
+
+    In plain English:
+        Take the following expression:
+            σ dept_name = "Physics" (instructor)
+        This can be written as:
+            select * from instructor where dept_name="Physics"
+        Or:
+            select all instructors from the Physics department
+        -------------------------------------------------------------------
+        But what if we did this?
+            ∏ name (σ dept_name = "Physics" (instructor))
+        We would then write:
+            select name from instructor where dept_name="Physics"
+        Or:
+            select the names of all instructors from the Physics department
+        -------------------------------------------------------------------
+        Now, how about this?
+            ∏ name, salary (σ dept_name = "Music" ∧ salary > 90000  (instructor))
+        We would then write:
+            select name, salary from instructor where dept_name="Music" and salary > 90000
+        Or:
+            select the names and salaries of all instructors from the Music department that earn over $90,000 a year.
