@@ -166,3 +166,99 @@ More relational algebra:
             select name, salary from instructor where dept_name="Music" and salary > 90000
         Or:
             select the names and salaries of all instructors from the Music department that earn over $90,000 a year.
+
+02-03:
+Super Monday, today should be a day off.
+
+    Homework online, due at the end of the week, based out of the textbook.
+
+    IBM stated developing SQL as a part of System R in the San Jose Research Labs
+    SQL means "Structured Queary Language"
+    There are multiple SQL standards:
+        SQL-86
+        SQL-89
+        SQL-92
+        SQL:1999 (language name before Y2K complaint!)
+        SQL:2003
+
+    Commerical systems mostly offer features from SQL-92.
+        Also includes features from later releases & some proprietary features.
+
+    IBM has its own database system called DB2. Microsoft has SQL Server.
+
+    SQL dialects are all written in a similar manner. If you learn one dialect, you've learned the basics of all of them.
+
+    SQL parts:
+        DML -- provides the ability to query information from the database and to insert tuplies into, delete tuples from, and modify tuples in the database.
+        Integrity -- the DDL includes commands for despeciiifying integrity constraints.
+        View definition -- the DDL includes commands for defining views.
+        Transaction contol -- includescommands for specifying the beginning and ending of transactions.
+        Embedded SQL and dynamic SQL -- define how SQL statements can be embedded within general-purpose programming languages.
+        Authorization -- includes commands for specifying access rights to relations and views.
+
+    The SQL data-definition language (DDL) allows the specification of information about relations.
+
+    Data types in SQL:
+        char(n):                Fixed length character string, with length n
+        varchan(n):             Variable length character strings, with max length n
+        int:                    Normal integer
+        smallint:               Less integer
+        numeric(p, d):          Fixed point number, storing p digits, with d decimals
+                                numeric(5, 2) allows for 987.12, but not 987.123456.....
+        real, double precision: Floating point number, with machine-dependant percision
+        float(n):               Floating point number, with user-specified precision of at least n digits
+        ... and more.
+
+    A SQL relation is defined using the "create table" command:
+        create table r
+            (A1 D1, A2 D2, ..., An Dn,
+                (integrity-constraint 1),
+                    ...,
+                (integrity-constraint k));
+
+    Types of integrity constraings:
+        primary key (A1, ..., An)
+        foreign key (Am, ..., An) references r
+        not null
+
+    SQL prevents any update to the database that violates an integrty constraint.
+
+    Ediing tables:
+        insert:
+            insert into r values (V1, V2, ..., Vn);
+        delete:
+            delete from student
+                Removes all tuples from the student relation
+        drop table:
+            drop table r
+                Get rid of r!
+        alter:
+            alter table  add A D
+                ... Where A is the name of the attribute to be added to relation r, and D is the domain of A
+            alter table r drop A
+                ... where A is the name of an attribute of relation r
+                Dropping of attributes is NOT supported by many databases
+        modify:
+            change datatype of an attribute in a table
+
+        A typical SQL query has the following form:
+            select A1, A2, ..., An
+            from R1, R2, ..., Rm
+            where P
+                Ai represents an attribute
+                Ri represents a relation
+                P is a predicate
+            The result of an SQL query is a relation, so we can nest queries (subquery).
+
+        The select clause lists the attributes given in the reslt of a query.
+            Corresponds to the projection operation of relational algebra.
+            NOTE: names in SQL are case-sensitive!
+            SQL allows duplicates in relations as well as in query calls.
+                To force the elimination of duplicates, insert the keyword "distinct" after "select"
+            A wildcard/asterisk "*" denotes "all attributes"
+            An attribute can be a literal with no "from" clause:
+                select '123'
+                    Results in a table with one column and a single row with value "123"
+            We can give a column in the resulting query its own name:
+                select '123', 'hello world!' as FOO, BAR
+            An attribute can be a literal with the "from" clause:
