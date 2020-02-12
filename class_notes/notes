@@ -261,4 +261,152 @@ Super Monday, today should be a day off.
                     Results in a table with one column and a single row with value "123"
             We can give a column in the resulting query its own name:
                 select '123', 'hello world!' as FOO, BAR
-            An attribute can be a literal with the "from" clause:
+
+02-12:
+Backstreet's back, alright.
+
+    An outline of SQL:
+        SQL supports the following:
+            A DML
+            Basic operations
+            Set operations
+            Null vales
+            Aggregate functions
+            Nested subqueries
+            Database modification
+            Tranactions
+            Data ownership
+
+    String operations:
+        SQL includes a string-matching operation for comparisons on chaaracter strings.
+            The operator "like" uses patterns that are described using two special characters:
+                % : Match any substring
+                _ : Match any character
+            This query will select all instructors whose name includes the supstring "dar":
+                -----------------------------------
+
+                select name
+                from instructor
+                where name like '%dar%';
+
+                -----------------------------------
+            This query will select all courses listed under "MA" (math):
+                -----------------------------------
+
+                select course_id
+                from course
+                where course_id like 'MA%';
+
+                -----------------------------------
+            This will match the string "100%":
+                -----------------------------------
+
+                like '100\%' escape '\';
+
+                -----------------------------------
+                    We use a backslash (\) as an escape character.
+            Patterns are case sensitive.
+            Pattern matching examples:
+                'Intro%' matches any string beginning with "Intro".
+                "%Comp%' matches any string containing "Comp" as a substring.
+                '___' matches any string of exactly three characters.
+                '___%' matches any string of three or more characters.
+        SQL supports a variety of other operations, such as:
+            Concatenation (using "||")
+            Conversion from upper to lower case (and vice versa)
+            Finding string length
+            Extracting substrings
+            Etc.
+    
+    Ordering the display of tables:
+        The following query lists (in alphabetic order) the names of all instructors
+                -----------------------------------
+
+                select distinct name
+                from instructor
+                order by name;
+
+                -----------------------------------
+        We may specify "desc" for descending order or "asc" for ascending order for each attribute. Ascending is the default.
+                -----------------------------------
+
+                order by name desc;
+                
+                -----------------------------------
+        We can order this with multiple attibutes
+                -----------------------------------
+
+                order by dept_name, name;
+                
+                -----------------------------------
+
+    Where clause predicates:
+        SQL incldes a between comparison operator
+            Example: find the names of all instrucotrs with a salary between $90,000 and $100,000
+                -----------------------------------
+
+                select name
+                from instructor
+                where salary between 90000 and 100000
+
+                -----------------------------------
+
+            Tuple comparison:
+                -----------------------------------
+
+                select name, course_id
+                from instructor, teaches
+                where (instructor.ID, dept_name) = (teaches.ID, 'Biology');
+                
+                -----------------------------------
+
+    Set operations:
+        We can treat a table as a set of tuples.
+            A set, unlike a table, doesn't allow duplicates. Therefore, by treating a table as a set, some rows may be lost.
+        Find courses that ran in Fall 2017 or Spring 2018:
+            -----------------------------------
+
+            (select course_id from section where sem = 'Fall' and year = 2017)
+            union
+            (select course_id from section where sem = 'Spring' and year = 2018) 
+            
+            -----------------------------------
+        Find courses that ran in Fall 2017 and Spring 2018:
+            -----------------------------------
+
+            (select course_id from section where sem = 'Fall' and year = 2017)
+            intersect
+            (select course_id from section where sem = 'Spring' and year = 2018) 
+            
+            -----------------------------------
+        Find courses that ran in Fall 2017 but not in Spring 2018:
+            -----------------------------------
+
+            (select course_id from section where sem = 'Fall' and year = 2017)
+            except
+            (select course_id from section where sem = 'Spring' and year = 2018) 
+            
+            -----------------------------------
+        The above queries will automatically eliminate duplicate values.
+        To retain duplicate values, we use the "all" keyword:
+            union all
+            intersect all
+            except all
+
+    Null values:
+        It is possible for tuples to have a null value, denoted by "null", for some of their attributes.
+        null signifies an unknown value or a value that does not exist.
+        The result of any arithmetic expression involving null is null.
+            Example:    5 + null returns null
+        The result of most logical expressions involving null is false.
+            Example:    null < 100000 returns false
+        The predicate "is null" can be used to check for null values.
+            Example: find all instructors whose salary is null:
+                -----------------------------------
+
+                select name
+                from instructor
+                where salary is null;
+
+                -----------------------------------
+        The predicate "is not null" will reject all null values --- very useful!
