@@ -410,3 +410,92 @@ Backstreet's back, alright.
 
                 -----------------------------------
         The predicate "is not null" will reject all null values --- very useful!
+
+02-26:
+
+
+    Modifying a table:
+        deletion
+            delete from _
+                where _;
+        
+        insertion:
+            insert into _
+                values _, _, _;
+
+            insert into _ select * from _;
+            ^^^ Problematic!
+            The select clause is fully evaluated before any of its results will be used.
+        
+        updating:
+            update _
+                set value = value * 1.05;
+            ^^^
+            Update value --- increase by 5%.
+
+            update _
+                set value = case
+                    when value < 1000 then value * 1.05
+                    else value * 1.03
+                end;
+            ^^^
+            Update value --- for ever value less than 1,000, increment by 5%. Otherwise, increment by 3%.
+
+    Updpates with scalar subqueries:
+        update student S
+        set for_cred =
+        (
+            select sum(credits)
+            from takes, course
+            where takes.course_id = course.course_id
+                and S.ID = takes.ID
+                and takes.grade <> 'F'
+                and takes.grade is not null
+        );
+        ^^^ Interesting, but not good!
+        This will set for_creds to null for students who have not taken any course!
+        Instead of sum(credits), let's do this:
+            case
+                when sum(credits) is not null then sum(credits)
+                else 0
+            end
+
+
+    Now, let's move on to...
+     ***** Intermediate SQL!!! ***** 
+        Join expressions
+        Views
+        Transactions
+        Integrity constraints
+        SQL data types and schemes
+        Etc.
+
+
+    Joined relations:
+        Join operations take two relations and return another relation as a result.
+        The following are all join operations in MySQL:
+            natural join
+            inner join
+            outer join
+
+        This query lists the names of all instructors, as well as the ID of the courses that they taught.
+            select name, course_id
+            from student, takes
+            where student.ID = takes.ID;
+
+        This is the same query in SQL, but using the 'natural join' operation:
+            select name, course_id
+            from student natural join takes;
+
+        Natural join tells MySQL to join tuples if and only if they share some column.
+        The other, more verbose version is better. It is safer and more vebose. The example above is not a good use of a join operation!
+
+        Valid syntax:
+            select * from student
+            natural join takes, course
+            where takes.course_id = course.course_id;
+        Invalid syntax:
+            select * from student
+            natural join takes
+            natural join course
+            where takes.course_id = course.course_id;
