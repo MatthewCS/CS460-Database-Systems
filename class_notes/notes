@@ -499,3 +499,86 @@ Backstreet's back, alright.
             natural join takes
             natural join course
             where takes.course_id = course.course_id;
+
+
+03-06:
+"Searching for something to say
+[HORNS]
+Waiting for the brink of day
+[HORNS ESCALATE]"
+
+    How do we work with integrity in a database? Not just the integrity of our data --- how do we control access?
+        Authorization!
+
+    In some cases, it is not desirable for all users to see the entire database.
+    Cosider a person who need to see an instructor's name and ID, but not salary:
+        select ID, name, dept_name
+        from instructor;
+    A "view" provides a mechanism to hide certain data from the view of certain users.
+    And relation made visible to the user --- not just a conceptual model! --- is called a "view."
+
+    A lot of people work with data, but not all of them work with SQL. IT departments might be afraid of these people.
+        Thus, a view guards against any major damage!
+
+    A view is defined as follows:
+        create view v as < QUERY >;
+    For example, this is a view of instructors with their salaries omitted:
+        create view faculty as
+            select ID, name, dept_name
+            from instructor;
+
+    One view may be used to define another.
+    A view relation, v1, is raid to "depend directly" on a view v2 if v2 is used in the expression defining v1.
+
+    Sometimes, we can physically store our data. A copy of our data is written into memory when a "material view" of it is defined.
+
+    Now, let's go back to our faculty view. Watch this:
+        insert into faculty
+            values ('30765', 'Green', 'Music');
+    The insertion must be represented by the insertion into the instructor relation, because we must have a view for salary.
+    This is because when we insert a tuple into the faculty view, we are inserting it into our instructor table.
+    There are two approaches we can take here:
+        1 ) Reject the insert query entirely.
+        2 ) Insert into instructor the tuple
+                ('30765', 'Green', 'Music', null);
+            If null values are allowed.
+    In general, we aren't allowed to insert data through a view. It's possible, sometimes, but never a smart idea.
+
+    Most SQL implementations only allow updates on simple views.
+        The "from" clause has only one database relation.
+        The "select" clause only contains attribute nates of the relation, and does not have any expression, aggregates, etc.
+        There is no "group by" or "having" clause.
+        And so on...
+
+
+    All of that is cool, but... what about transactions?
+    A transaction consists of a sequence of query and / or update statements and is a "unit" of work.
+        Example:    withdraw $100.00 from band account A,
+                    then deposit $100.00 into bank account B.
+    The SQL standard specifies that a transaction begins implicitly when a SQL statement is executed.
+    The transacion must end with one of the following:
+        Commit work:    Update our database with the results of our transaction
+        Rollback work:  Undo everything from ou transaction --- abort, abort!
+    This is an "Atomic transaction" --- one that is either fully executed, or treated as though it never occurred.
+    SQL allows for an isolation from other concrrent transactions.
+
+
+    And what are integrity constraints?
+    Integrity constraints are a set of mechanisms to guard against damage to our database.
+    This ensures that authorized changes to the database do not result in a loss of data consistency.
+        A checking account must neer have a balance greater than $10,000.00.
+        Campus salaries must never be lower than $11.80 / hour.
+        Customers must always have a (non-null) phone number.
+    The constraints directly built into SQL are as follows:
+        not null
+        primary key
+        unique(A1, A2, ..., An-1, An)
+            Where Ai is some column in our table.
+        check (P)
+            P is some predicate
+    There is also "foreign key", which we can refer to as "referential integrity"
+    Important to know: the "cascade" keyword is integral for referential integrity. Essentially, whenever a
+    ... change is made to a foreign table, anything that references that table will also be changed.
+    "cascade" is shorthand:
+        set null,
+        set default
